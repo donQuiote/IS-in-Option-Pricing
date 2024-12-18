@@ -24,7 +24,7 @@ nbr_Ns = 25
 Ns = np.logspace(2,6,num=nbr_Ns,dtype=int)
 
 # iteration of each process
-nbr_iterations = 15
+nbr_iterations = 1
 iterations = np.arange(0,nbr_iterations)
 
 # We will assume t = 0 for simplicity

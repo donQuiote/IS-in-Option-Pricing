@@ -10,7 +10,7 @@ def plot_paths(stock_paths,timeline,N,K,filename):
     plt.hlines(K, xmin=timeline[0], xmax=timeline[-1], colors="black", linestyles="dotted", label=f"strike {K}")
     plt.xlabel("Time")
     plt.ylabel("Stock Price")
-    plt.title("Generated Stock Price Paths")
+    plt.title("Generated Stock Price Paths with 51% volatility")
     plt.legend()
     plt.savefig(filename)
     plt.show()

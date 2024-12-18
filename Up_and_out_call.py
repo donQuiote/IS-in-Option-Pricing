@@ -2,7 +2,7 @@ import numpy as np
 from generation import generate_numerical_prices
 from adaptive_strategy import adaptive_optimal_r
 from grapher import plot_MC_Analytical
-from helpers import generate_latex_table, generate_summary_table
+from helpers import generate_latex_table, generate_summary_table, analytical_Up_Out_call_price
 
 #Interest rate
 r = .1
@@ -30,6 +30,8 @@ iterations = np.arange(0,nbr_iterations)
 # We will assume t = 0 for simplicity
 dt = T/M
 timeline = np.linspace(0,T,num=M+1,endpoint=True)
+#%%
+print(analytical_Up_Out_call_price(S0, K, U, T, r, vol))
 #%%
 ##################
 # 1.

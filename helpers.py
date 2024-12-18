@@ -7,6 +7,16 @@ def analytical_call_price(S_0, K, T, r, sigma):
     d2 = d1 - sigma*np.sqrt(T)
     return S_0*st.norm.cdf(d1) - np.exp(-r*T)*K*st.norm.cdf(d2)
 
+def delta_plus(s, r, sigma, T):
+    return (np.log(s) + (r+sigma**2/2)*T)/(sigma*np.sqrt(T))
+
+def analytical_Up_Out_call_price(S_0, K, U, T, r, sigma):
+    I_1 = st.norm.cdf(delta_plus(S_0/K, r, sigma, T))-st.norm.cdf(delta_plus(S_0/U, r, sigma, T))
+    I_2 = np.exp(-r*T)*(st.norm.cdf(delta_plus(S_0/K, r, sigma, T)-sigma*np.sqrt(T))-st.norm.cdf(delta_plus(S_0/U, r, sigma, T)-sigma*np.sqrt(T)))
+    I_3 = np.power(S_0/U,-2*r/sigma**2 -1)*(st.norm.cdf(delta_plus(U**2/(K*S_0), r, sigma, T))-st.norm.cdf(delta_plus(U/S_0, r, sigma, T)))
+    I_4 = np.exp(-r*T)*np.power(S_0/U,-2*r/sigma**2 -1)*(st.norm.cdf(delta_plus(U**2/(K*S_0), r, sigma, T)-sigma*np.sqrt(T))-st.norm.cdf(delta_plus(U/S_0, r, sigma, T)-sigma*np.sqrt(T)))
+    return S_0*I_1-K*I_2-S_0*I_3+K*I_4
+
 def generate_latex_table(values, sample_sizes, mean_txt, std_txt):
     # Extract means and stds for the values
     means = values.mean()

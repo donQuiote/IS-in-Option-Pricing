@@ -133,4 +133,30 @@ fig.update_layout(
 fig.write_image("Z_surface.png",width=1920, height=1080, scale=1)
 fig.show()
 
+import polars as pl
+import scipy.stats as st
+def generate_controled_path(S_0, nbr_gen, time_obs, timeline, delta_t,mu,sigma, zeta, phi = 0):
+    stock_price = pl.DataFrame({"S_0.0": pl.Series([S_0] * nbr_gen)})
+    for t in range(time_obs):
+        #brownian increment, same as Wt+1-Wt
+        #TODO
+        # define the s in the zeta, perhaps find the closest match for control
+        dW = st.norm.rvs(loc = zeta[s,t], scale=np.sqrt(delta_t), size = nbr_gen)
+
+        #add observations
+        stock_price = stock_price.with_columns(
+            (pl.col(f"S_{timeline[t]}")*(1+mu*delta_t+sigma*dW)).alias(f"S_{timeline[t+1]}")
+        )
+
+        if phi != 0:
+            dW_sum += dW
+
+
+    stock_price = stock_price.with_columns(
+        pl.Series("likelihood_ratio", np.exp(0.5*delta_t*time_obs*phi**2-phi*dW_sum))
+    )
+
+    return stock_price, dW_sum
+
+
 

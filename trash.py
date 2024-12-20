@@ -69,3 +69,27 @@ def adaptive_optimal_r():
     #def phi_minimizer(r_hat):
 print(f"after adaptive optimization, the best r_tilde is {phi*vol+r}, we obtain the price of {mu_Z} and volatility {vol_Z}")
 print(analytical_call_price(S_0=S0,K=K,T=T,r=r,sigma=vol))
+
+
+
+
+#Plot the 3D shape of the value over time and interest rate
+S_mesh, T_mesh = np.meshgrid(s_set[idx_S_min:idx_S_max], t_set)
+
+# Create the interactive 3D plot
+fig = go.Figure()
+
+# Add a surface trace
+fig.add_trace(go.Surface(z=zeta_forward[idx_S_min:idx_S_max].T, x=S_mesh, y=T_mesh, colorscale='Viridis'))
+
+# Update layout for labels and title
+fig.update_layout(
+    scene=dict(
+        xaxis_title=r'Asset Value $(s_t)$',
+        yaxis_title='Time to Maturity (t)',
+        zaxis_title='Put Option Price',
+    ),
+    title='Zeta optimal control',
+)
+fig.write_image("Z_surface.png",width=1920, height=1080, scale=1)
+fig.show()

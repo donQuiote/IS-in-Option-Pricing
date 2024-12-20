@@ -20,11 +20,11 @@ K = 120
 M = 100
 #Smapling size
 nbr_Ns = 30
-Ns = np.logspace(1,6,num=nbr_Ns,dtype=int)
+Ns = np.logspace(1,6,num=nbr_Ns,dtype=int) #np.ndarray
 
 # iteration of each process
 nbr_iterations = 20
-iterations = np.arange(0,nbr_iterations)
+iterations = np.arange(0,nbr_iterations) #np.ndarray
 
 # We will assume t = 0 for simplicity
 dt = T/M

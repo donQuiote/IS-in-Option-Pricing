@@ -32,6 +32,7 @@ dt = T/M
 timeline = np.linspace(0,T,num=M+1,endpoint=True)
 #%%
 Up_Out_price = analytical_Up_Out_call_price(S0, K, U, T, r, vol)
+print(Up_Out_price)
 #%%
 ##################
 # 1.
@@ -70,4 +71,5 @@ print(latex_table_CI_star)
 
 summary_star_vs_CMC = generate_summary_table(Ns,numerical_prices_std_star,numerical_prices_std, confidence_intervals_star,confidence_intervals, numerical_prices_avg, numerical_prices_avg_star, analytical_price=0)
 print(summary_star_vs_CMC)
+
 

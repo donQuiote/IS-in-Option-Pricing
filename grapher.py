@@ -4,14 +4,16 @@ import numpy as np
 import plotly.graph_objects as go
 
 
-def plot_paths(stock_paths,timeline,N,K,filename, avg_path= False):
+def plot_paths(stock_paths,timeline,N,K,filename, avg_path= False, U=np.inf):
     plt.figure(num=2, figsize=(16, 8), dpi=200)
     for i in range(N):
         plt.plot(timeline, stock_paths[i, :])
 
     if avg_path:
         avg_path = np.mean(stock_paths, axis=0)
-    plt.plot(timeline, avg_path, color="red", linewidth=2, label="Average Path")
+        plt.plot(timeline, avg_path, color="red", linewidth=2, label="Average Path")
+    if U != np.inf:
+        plt.hlines(U, xmin=timeline[0], xmax=timeline[-1], colors="red", linestyles="dotted", label=f"Barrier {U}")
     plt.hlines(K, xmin=timeline[0], xmax=timeline[-1], colors="black", linestyles="dotted", label=f"strike {K}")
     plt.xlabel("Time")
     plt.ylabel("Stock Price")

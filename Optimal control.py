@@ -59,7 +59,8 @@ surface_plotter(s_set[idx_S_min:idx_S_max], t_set[:-1],zeta[idx_S_min:idx_S_max,
 
 zeta_interpolator = RegularGridInterpolator((s_set, t_set), zeta, method='linear', bounds_error=False, fill_value=0)
 #%%
-stock_price, _ = generate_controled_path(S_0=S0, nbr_gen=100, time_obs=M_tilde, timeline=t_set, delta_t=dt,mu=r,sigma=vol, s_min=s_min, s_max=s_max, zeta_interpolator=zeta_interpolator)
+N = 100
+stock_price, _ = generate_controled_path(S_0=S0, nbr_gen=N, time_obs=M_tilde, timeline=t_set, delta_t=dt,mu=r,sigma=vol, s_min=s_min, s_max=s_max, zeta_interpolator=zeta_interpolator)
 
 
 stock_price = stock_price.with_columns(
@@ -74,5 +75,5 @@ value = (stock_price.select("payoff_weighted")).mean().item()
 
 print("The price is:",value)
 
-plot_paths(stock_paths=stock_price.select(pl.exclude(["likelihood_ratio", "payoff", "payoff_weighted"])).to_numpy(), timeline=t_set, N=100, K=K, filename="images/stock_paths_optimal_100_500s_300t.png", avg_path=True)
+plot_paths(stock_paths=stock_price.select(pl.exclude(["likelihood_ratio", "payoff", "payoff_weighted"])).to_numpy(), timeline=t_set, N=N, K=K, filename=f"images/stock_paths_optimal_{N}_{P}s_{M_tilde}t.png", avg_path=True)
 

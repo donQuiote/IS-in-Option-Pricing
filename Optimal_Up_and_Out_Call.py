@@ -52,7 +52,7 @@ print(Up_Out_price)
 #%%
 
 #Boundary conditions
-eps = 0.1
+eps = 0.01
 
 #Setup value function with its boundary condition
 #V(s,t), value function
@@ -77,14 +77,13 @@ S_max = S0*np.exp((r-(vol**2)/2)*T+3*vol*np.sqrt(T))
 idx_S_min = np.argmin(np.abs(s_set - S_min))
 idx_S_max = np.argmin(np.abs(s_set - S_max))
 
-#surface_plotter(s_set[idx_S_min:idx_S_max], t_set[:-1],zeta[idx_S_min:idx_S_max,:-1], title="Zeta Optimal Control Surface", filename="S_surface_UOC.png")
-surface_plotter(s_set, t_set[:-1],zeta[:,-1], title="Zeta Optimal Control Surface", filename="Z_surface_UOC.png")
+surface_plotter(s_set[idx_S_min:idx_S_max], t_set[:-1],zeta[idx_S_min:idx_S_max,:-1], title="Zeta Optimal Control Surface", filename="S_surface_UOC.png")
 
 
 zeta_interpolator = RegularGridInterpolator((s_set, t_set), zeta, method='linear', bounds_error=False, fill_value=0)
 
 #%%
-stock_price, _ = generate_controled_path(S_0=S0, nbr_gen=1000, time_obs=M_tilde, timeline=t_set, delta_t=dt,mu=r,sigma=vol, s_min=s_min, s_max=s_max, zeta_interpolator=zeta_interpolator)
+stock_price, _ = generate_controled_path(S_0=S0, nbr_gen=100, time_obs=M_tilde, timeline=t_set, delta_t=dt,mu=r,sigma=vol, s_min=s_min, s_max=s_max, zeta_interpolator=zeta_interpolator)
 
 
 stock_price = stock_price.with_columns(

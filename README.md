@@ -34,8 +34,6 @@ Additionally some contains shorten dataset computed for shortened run times. The
 Contains various utility files.
 - [Grapher.py](Utils%2FGrapher.py) : Contains multiple functions to plot various graphs
 - [Utilities.py](Utils%2FUtilities.py) : Functions with single use
-- [shared_Treatment_Grapher.py](Utils%2shared_Treatment_Grapher.py) : Contains the methods shared by more than one .py file to avoid circular imports
-- [Data_Treatment.py](Utils%2Data_Treatment.py) : Contains function done to analyse the data, such as to give the basic information about the rax data, the different treatments we applied to the data, the group creation and handling, etc. 
 
 
 ## Usage 🫳

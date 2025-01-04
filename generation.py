@@ -3,6 +3,7 @@ import polars as pl
 import pandas as pd
 import scipy.stats as st
 from tqdm import tqdm
+from scipy.interpolate import RegularGridInterpolator
 
 def generate_stock_path(S_0: float, nbr_gen: int, time_obs: int, timeline: np.ndarray, delta_t: float, mu: float, sigma: float, phi: float = 0) -> tuple:
     """
@@ -95,23 +96,58 @@ def generate_CI(Ns: np.ndarray, S_0: float, K: float, M: int, T: float, timeline
         CI.update({f"CI({N})":ci_N})
     return CI
 
-def generate_numerical_prices(iterations,Ns,S_0, K, M, T, timeline, dt, r, vol, alpha = 0.05, phi=0, U=np.inf):
-    """
 
-    :param iterations:
-    :param Ns:
-    :param S_0:
-    :param K:
-    :param M:
-    :param T:
-    :param timeline:
-    :param dt:
-    :param r:
-    :param vol:
-    :param alpha:
-    :param phi:
-    :param U:
-    :return:
+def generate_numerical_prices(iterations: np.ndarray, Ns: np.ndarray, S_0: float, K: float, M: int, T: float,
+                              timeline: np.ndarray, dt: float, r: float, vol: float, generate: callable,
+                              alpha: float = 0.05, U: float = np.inf, **kwargs) -> tuple:
+    """
+    Generates numerical option prices and confidence intervals through Monte Carlo simulations.
+
+    This function simulates stock paths using a geometric Brownian motion model, computes the weighted payoffs
+    of the option under consideration, and calculates confidence intervals for the numerical prices.
+
+    :param iterations: np.ndarray
+        Array of iteration identifiers (e.g., range of iteration indices).
+    :param Ns: np.ndarray
+        Array of sample sizes used for the simulations.
+    :param S_0: float
+        Initial stock price.
+    :param K: float
+        Strike price of the option.
+    :param M: int
+        Number of time steps for the simulation.
+    :param T: float
+        Total time to maturity.
+    :param timeline: np.ndarray
+        Array of time points corresponding to the observations.
+    :param dt: float
+        Time increment between observations.
+    :param r: float
+        Risk-free interest rate. (stock drift)
+    :param vol: float
+        Volatility of the stock (diffusion coefficient).
+    :param generate: callable
+        A user-defined function for generating stock paths. Must match one of the following signatures:
+            - For `generate_stock_path`:
+                def generate_stock_path(S_0, nbr_gen, time_obs, timeline, delta_t, mu, sigma, phi=0) -> tuple
+            - For `generate_controled_path`:
+                def generate_controled_path(S_0, nbr_gen, time_obs, timeline, delta_t, mu, sigma, s_min, s_max, zeta_interpolator) -> tuple
+    :param alpha: float, optional (default=0.05)
+        Significance level for the confidence intervals.
+    :param U: float, optional (default=np.inf)
+        Upper limit for nullifying the option under certain conditions. Defaults to infinity (no limit applied).
+    :param kwargs: dict
+        Additional arguments passed to the `generate` function. Should include:
+            - For `generate_stock_path`: `phi` (Adjustment factor for Brownian motion increments. Defaults to 0 (no adjustment).)
+            - For `generate_controled_path`: `s_min`, `s_max`, `zeta_interpolator`
+
+    :return: tuple
+        - numerical_prices: pd.DataFrame
+            DataFrame where each column corresponds to a sample size and each row corresponds to an iteration.
+            Contains the numerical option prices computed during the simulation.
+        - confidence_intervals: pd.DataFrame
+            DataFrame where each column corresponds to a sample size and each row corresponds to an iteration.
+            Contains the confidence intervals for the numerical option prices.
     """
     # Storage for results over iterations
     column_names = [f"sample_size_{N}" for N in Ns]
@@ -121,9 +157,12 @@ def generate_numerical_prices(iterations,Ns,S_0, K, M, T, timeline, dt, r, vol, 
         numerical_prices_iter = []
         confidence_interval_iter = []
         for N in Ns:
-            stock_prices,_ = generate_stock_path(S_0=S_0, nbr_gen=N, time_obs=M, timeline=timeline, delta_t=dt, mu=r,
-                                               sigma=vol,phi = phi)
+            #stock_prices,_ = generate_stock_path(S_0=S_0, nbr_gen=N, time_obs=M, timeline=timeline, delta_t=dt, mu=r,
+            #                                   sigma=vol,phi = phi)
+            stock_prices, _ = generate(S_0=S_0, nbr_gen=N, time_obs=M, timeline=timeline, delta_t=dt, mu=r, sigma=vol,
+                                       **kwargs)
 
+            #Condition when dealing with UOC
             if U != np.inf:
                 stock_prices = stock_prices.with_columns(
                     pl.max_horizontal(pl.exclude("likelihood_ratio")).alias("S_max")
@@ -135,6 +174,7 @@ def generate_numerical_prices(iterations,Ns,S_0, K, M, T, timeline, dt, r, vol, 
                 stock_prices = stock_prices.with_columns(
                     pl.Series("condition",  [1] * N)
                 )
+
 
             final_stock = f"S_{T}"
 
@@ -157,20 +197,42 @@ def generate_numerical_prices(iterations,Ns,S_0, K, M, T, timeline, dt, r, vol, 
         confidence_intervals.loc[len(confidence_intervals)] = confidence_interval_iter
     return numerical_prices, confidence_intervals
 
-def generate_controled_path(S_0, nbr_gen, time_obs, timeline, delta_t, mu, sigma, s_min, s_max, zeta_interpolator):
-    """
 
-    :param S_0:
-    :param nbr_gen:
-    :param time_obs:
-    :param timeline:
-    :param delta_t:
-    :param mu:
-    :param sigma:
-    :param s_min:
-    :param s_max:
-    :param zeta_interpolator:
-    :return:
+def generate_controled_path(S_0: float, nbr_gen: int, time_obs: int, timeline: np.ndarray, delta_t: float,
+                            mu: float, sigma: float, s_min: float, s_max: float,
+                            zeta_interpolator: RegularGridInterpolator) -> tuple:
+    """
+    Generates controlled stock price paths using a modified geometric Brownian motion model.
+
+    This function incorporates a control variable (`zeta_control`) based on a provided interpolator, which adjusts
+    the Brownian increments for more targeted path generation. The likelihood ratio for each path is also computed.
+
+    :param S_0: float
+        Initial stock price.
+    :param nbr_gen: int
+        Number of paths to generate.
+    :param time_obs: int
+        Number of time observations (time steps) in the simulation.
+    :param timeline: np.ndarray
+        Array representing the time points corresponding to the stock price observations.
+    :param delta_t: float
+        Time increment between observations.
+    :param mu: float
+        Drift coefficient for the stock price.
+    :param sigma: float
+        Diffusion coefficient (volatility) for the stock price.
+    :param s_min: float
+        Minimum boundary for the stock price space. Below this value, control is clamped to `s_min`.
+    :param s_max: float
+        Maximum boundary for the stock price space. Above this value, control is clamped to `s_max`.
+    :param zeta_interpolator: RegularGridInterpolator
+        Interpolator object for `zeta_control`, which provides the control variable for the Brownian increments.
+
+    :return: tuple
+        - stock_price: polars.DataFrame
+            DataFrame containing the generated stock price paths with columns for each time step.
+        - likelihood_ratio: np.ndarray
+            Array of likelihood ratios corresponding to each generated path.
     """
     stock_price = pl.DataFrame({"S_0.0": pl.Series([S_0] * nbr_gen)})
     likelihood_ratio = np.zeros(nbr_gen)

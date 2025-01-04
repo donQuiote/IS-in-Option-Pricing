@@ -2,8 +2,8 @@
 import numpy as np
 import polars as pl
 from crank_nicholson import crank_nicholson_pde_solver, zeta_control_generator
-from generation import generate_controled_path
-from grapher import plot_paths, surface_plotter
+from generation import generate_controled_path, generate_numerical_prices
+from grapher import plot_paths, surface_plotter, plot_MC_Analytical
 from scipy.interpolate import RegularGridInterpolator
 from helpers import analytical_Up_Out_call_price
 
@@ -22,13 +22,6 @@ K = 150
 U = 170
 #Subintervals
 M = 1000
-#Smapling size
-nbr_Ns = 25
-Ns = np.logspace(2,6,num=nbr_Ns,dtype=int)
-
-# iteration of each process
-nbr_iterations = 12
-iterations = np.arange(0,nbr_iterations)
 
 # We will assume t = 0 for simplicity
 dt = T/M
@@ -107,3 +100,17 @@ value = (stock_price.select("payoff_weighted")).mean().item()
 print("The price is:",value)
 N =100
 plot_paths(stock_paths=stock_price.select(pl.exclude(["likelihood_ratio", "payoff", "payoff_weighted", "S_max", "condition"])).to_numpy(), timeline=t_set, N=N, K=K, filename=f"images/stock_paths_optimal_{N}_{P}s_{M_tilde}t_UOC.png", avg_path=True, U=U)
+
+#Smapling size
+nbr_Ns = 5
+Ns = np.logspace(1,4,num=nbr_Ns,dtype=int) #np.ndarray
+
+# iteration of each process
+nbr_iterations = 7
+iterations = np.arange(0,nbr_iterations) #np.ndarray
+
+numerical_prices_opt_control, confidence_intervals_opt_control = generate_numerical_prices(iterations=iterations,Ns=Ns,S_0=S0, K=K, M=M_tilde, T=T, timeline=t_set, dt=dt, r=r, vol=vol, generate=generate_controled_path, U = U, s_min=s_min, s_max=s_max, zeta_interpolator=zeta_interpolator)
+numerical_prices_avg_opt_control=  numerical_prices_opt_control.mean()
+numerical_prices_std_opt_control = numerical_prices_opt_control.std()
+plot_MC_Analytical(analytical_price=Up_Out_price, numerical_prices_avg=numerical_prices_avg_opt_control,  numerical_prices_std=numerical_prices_std_opt_control, sample_sizes=Ns, nbr_iterations = nbr_iterations, confidence_level=0.95, filename="images/MC_UOCO_Optimal_Controlled")
+

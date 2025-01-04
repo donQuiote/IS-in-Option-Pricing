@@ -1,5 +1,5 @@
 import numpy as np
-from generation import generate_numerical_prices
+from generation import generate_numerical_prices, generate_stock_path
 from adaptive_strategy import adaptive_optimal_r
 from grapher import plot_MC_Analytical
 from helpers import generate_latex_table, generate_summary_table, analytical_Up_Out_call_price
@@ -37,7 +37,7 @@ print(Up_Out_price)
 ##################
 # 1.
 ##################
-numerical_prices, confidence_intervals = generate_numerical_prices(iterations=iterations,Ns=Ns,S_0=S0, K=K, M=M, T=T, timeline=timeline, dt=dt, r=r, vol=vol, U=U)
+numerical_prices, confidence_intervals = generate_numerical_prices(iterations=iterations,Ns=Ns,S_0=S0, K=K, M=M, T=T, timeline=timeline, dt=dt, r=r, vol=vol, generate=generate_stock_path, U=U)
 numerical_prices_avg =  numerical_prices.mean()
 numerical_prices_std = numerical_prices.std()
 plot_MC_Analytical(analytical_price=Up_Out_price, numerical_prices_avg=numerical_prices_avg,  numerical_prices_std=numerical_prices_std, sample_sizes=Ns, nbr_iterations = nbr_iterations, confidence_level=0.95, filename="images/MC_UOCO_estimation")
@@ -60,7 +60,7 @@ print(f"after adaptive optimization, the best r_tilde is {r_star}, we obtain the
 #after adaptive optimization, the best r_tilde is 1.5938668642327334, we obtain the price of 0.009531864803386358 and volatility 0.00018868100865645663
 #%%
 phi_star = (1.5938668642327334-r)/vol
-numerical_prices_star, confidence_intervals_star = generate_numerical_prices(iterations=iterations,Ns=Ns,S_0=S0, K=K, M=M, T=T, timeline=timeline, dt=dt, r=r, vol=vol, phi=phi_star,  U=U)
+numerical_prices_star, confidence_intervals_star = generate_numerical_prices(iterations=iterations,Ns=Ns,S_0=S0, K=K, M=M, T=T, timeline=timeline, dt=dt, r=r, vol=vol, generate=generate_stock_path, U=U, phi=phi_star)
 numerical_prices_avg_star =  numerical_prices_star.mean()
 numerical_prices_std_star = numerical_prices_star.std()
 plot_MC_Analytical(analytical_price=Up_Out_price, numerical_prices_avg=numerical_prices_avg_star,  numerical_prices_std=numerical_prices_std_star, sample_sizes=Ns, nbr_iterations = nbr_iterations, confidence_level=0.95, filename="images/MC_UOCO_Optimal_r_tilde")

@@ -43,7 +43,7 @@ plot_paths(stock_paths=stock_paths, timeline=timeline, N=N, K=K, filename="image
 
 #%%
 #Generate multiple iterations of various path and compute the price and Confidence intervals
-numerical_prices, confidence_intervals = generate_numerical_prices(iterations=iterations,Ns=Ns,S_0=S0, K=K, M=M, T=T, timeline=timeline, dt=dt, r=r, vol=vol)
+numerical_prices, confidence_intervals = generate_numerical_prices(iterations=iterations,Ns=Ns,S_0=S0, K=K, M=M, T=T, timeline=timeline, dt=dt, r=r, vol=vol, generate=generate_stock_path)
 numerical_prices_avg =  numerical_prices.mean()
 numerical_prices_std = numerical_prices.std()
 analytical_price = analytical_call_price(S_0=S0,K=K,T=T,r=r,sigma=vol)
@@ -61,7 +61,7 @@ r_tilde = np.log(K/S0)/T
 phi = (r_tilde-r)/vol
 #%%
 
-numerical_prices_IS, confidence_intervals_IS = generate_numerical_prices(iterations=iterations,Ns=Ns,S_0=S0, K=K, M=M, T=T, timeline=timeline, dt=dt, r=r, vol=vol, phi=phi)
+numerical_prices_IS, confidence_intervals_IS = generate_numerical_prices(iterations=iterations,Ns=Ns,S_0=S0, K=K, M=M, T=T, timeline=timeline, dt=dt, r=r, vol=vol, generate=generate_stock_path, phi=phi)
 numerical_prices_avg_IS =  numerical_prices_IS.mean()
 numerical_prices_std_IS = numerical_prices_IS.std()
 plot_MC_Analytical(analytical_price=analytical_price, numerical_prices_avg=numerical_prices_avg_IS,  numerical_prices_std=numerical_prices_std_IS, sample_sizes=Ns, nbr_iterations = nbr_iterations, confidence_level=0.95, filename = "images/MC_CO_estimation_IS")
@@ -80,7 +80,7 @@ print(summary)
 r_star, phi_star, price_est_star, price_est_vol_star = adaptive_optimal_r(S0=S0 ,r_0=r, r_tilde=r_tilde, vol=vol,K=K , M=M, dt=dt, timeline=timeline,T=T)
 print(f"after adaptive optimization, the best r_tilde is {r_star}, we obtain the price of {price_est_star} and volatility {price_est_vol_star**2}")
 #%%
-numerical_prices_star, confidence_intervals_star = generate_numerical_prices(iterations=iterations,Ns=Ns,S_0=S0, K=K, M=M, T=T, timeline=timeline, dt=dt, r=r, vol=vol, phi=phi_star)
+numerical_prices_star, confidence_intervals_star = generate_numerical_prices(iterations=iterations,Ns=Ns,S_0=S0, K=K, M=M, T=T, timeline=timeline, dt=dt, r=r, vol=vol, generate=generate_stock_path, phi=phi_star)
 numerical_prices_avg_star =  numerical_prices_star.mean()
 numerical_prices_std_star = numerical_prices_star.std()
 analytical_price = analytical_call_price(S_0=S0,K=K,T=T,r=r,sigma=vol)

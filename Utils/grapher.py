@@ -4,8 +4,8 @@ import numpy as np
 import plotly.graph_objects as go
 
 
-def plot_paths(stock_paths,timeline,N,K,filename, avg_path= False, U=np.inf):
-    plt.figure(num=2, figsize=(16, 8), dpi=200)
+def plot_paths(stock_paths,timeline,N,K,filename, avg_path= False, U=np.inf, title = "Generated Stock Price Paths with 51% volatility"):
+    plt.figure(num=2, figsize=(16, 8), dpi=600)
     for i in range(N):
         plt.plot(timeline, stock_paths[i, :])
 
@@ -13,16 +13,21 @@ def plot_paths(stock_paths,timeline,N,K,filename, avg_path= False, U=np.inf):
         avg_path = np.mean(stock_paths, axis=0)
         plt.plot(timeline, avg_path, color="red", linewidth=2, label="Average Path")
     if U != np.inf:
-        plt.hlines(U, xmin=timeline[0], xmax=timeline[-1], colors="red", linestyles="dotted", label=f"Barrier {U}")
-    plt.hlines(K, xmin=timeline[0], xmax=timeline[-1], colors="black", linestyles="dotted", label=f"strike {K}")
-    plt.xlabel("Time")
-    plt.ylabel("Stock Price")
-    plt.title("Generated Stock Price Paths with 51% volatility")
-    plt.legend()
-    plt.savefig(filename)
+        plt.hlines(U, xmin=timeline[0], xmax=timeline[-1], colors="red", linestyles="dotted", linewidth=1.5, label=f"Barrier {U}")
+    plt.hlines(K, xmin=timeline[0], xmax=timeline[-1], colors="black", linestyles="dotted", linewidth=1.5, label=f"strike {K}")
+    plt.xlabel("Time", fontsize=16)
+    plt.ylabel("Stock Price", fontsize=16)
+    plt.title(title, fontsize=20)
+    plt.legend(fontsize=16)
+
+    # Enhance tick labels
+    plt.xticks(fontsize=16)
+    plt.yticks(fontsize=16)
+
+    plt.savefig(filename, bbox_inches='tight')
     plt.show()
 
-def plot_MC_Analytical(analytical_price, numerical_prices_avg, numerical_prices_std, sample_sizes,nbr_iterations, confidence_level,filename):
+def plot_MC_Analytical(analytical_price, numerical_prices_avg, numerical_prices_std, sample_sizes,nbr_iterations, confidence_level,filename, title = "Crude Monte Carlo call price estimation in function of sample size"):
     plt.figure(num = 1,figsize=(16,8),dpi=200)
     plt.hlines(analytical_price,xmin=sample_sizes[0],xmax=sample_sizes[-1],colors="red", linestyles="dotted", label=f"analytical price")
     plt.plot(sample_sizes,numerical_prices_avg, color='blue')
@@ -36,12 +41,16 @@ def plot_MC_Analytical(analytical_price, numerical_prices_avg, numerical_prices_
     plt.fill_between(sample_sizes, lower_bound, upper_bound, color='blue', alpha=0.2, label=f"{int(confidence_level * 100)}% Confidence Interval")
 
     plt.xscale('log')
-    plt.xlabel("sample sizes [N]")
-    plt.ylabel("call option price with")
-    plt.title("Crude Monte Carlo call price estimation in function of sample size")
+    plt.xlabel("sample sizes [N]", fontsize=16)
+    plt.ylabel("call option price with", fontsize=16)
+    plt.title(title, fontsize=20)
     plt.grid(True, which="both", linestyle="--", linewidth=0.5)
 
-    plt.savefig(filename)
+    # Enhance tick labels
+    plt.xticks(fontsize=16)
+    plt.yticks(fontsize=16)
+
+    plt.savefig(filename, bbox_inches='tight')
 
     plt.show()
 

@@ -5,7 +5,57 @@ from generation import generate_stock_path
 from scipy.optimize import minimize
 
 
-def adaptive_optimal_r(S0 ,r_0, r_tilde, vol,K , M, dt, timeline,T, U=np.inf, N_bar=100, gamma=2, tol=1.5E-4, alpha = 0.05):
+def adaptive_optimal_r(S0: float, r_0: float, r_tilde: float, vol: float, K: float, M: int, dt: float,
+                       timeline: np.ndarray, T: float, U: float = np.inf, N_bar: int = 100,
+                       gamma: float = 2, tol: float = 1.5E-4, alpha: float = 0.05) -> tuple:
+    """
+    Computes the optimal adjusted rate of return (`r_star`) using an adaptive simulation approach.
+
+    The method iteratively refines the adjustment parameter `phi` to minimize the variance of the weighted payoff
+    and ensures convergence to a target precision within the specified tolerance.
+
+    The algorithm is described in the report attached to the code
+
+    Parameters
+    ----------
+    S0 : float
+        Initial stock price.
+    r_0 : float
+        Initial expected rate of return.
+    r_tilde : float
+        Initial adjustment to the rate of return (`r`).
+    vol : float
+        Volatility of the stock price.
+    K : float
+        Strike price of the option.
+    M : int
+        Number of time observations (steps) in the simulation.
+    dt : float
+        Time increment between consecutive observations.
+    timeline : np.ndarray
+        Sequence of time points corresponding to the observations.
+    T : float
+        Total time to maturity (in years).
+    U : float, optional
+        Upper barrier for stock price paths. Default is `np.inf` (no barrier).
+    N_bar : int, optional
+        Initial number of simulations. Default is 100.
+    gamma : float, optional
+        Growth factor for the number of simulations in each iteration. Default is 2.
+    tol : float, optional
+        Precision tolerance for the stopping criterion of the simulation. Default is 1.5E-4.
+    alpha : float, optional
+        Significance level for confidence intervals. Default is 0.05.
+
+    Returns
+    -------
+    tuple
+        A tuple containing:
+        - r_star (float): The optimal adjusted rate of return.
+        - phi (float): The final adjustment parameter.
+        - mu_Z (float): The mean of the weighted payoff.
+        - vol_Z (float): The standard deviation of the weighted payoff.
+    """
     #Initialization
     phi = (r_tilde - r_0) / vol
     c = st.norm.ppf(1 - alpha / 2)

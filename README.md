@@ -36,6 +36,7 @@ Contains the main algorithm to generate path under a change a measure or not. Ru
 - [adaptive_strategy.py](Algorithms/adaptive_strategy.py) : Computes the optimal change of measure via minimizing the estimator variance
 - [crank_nicholson.py](Algorithms/crank_nicholson.py) : Solves a stochastic differential equation (SDE) backward in time using the Crank-Nicholson method.
 
+## Secondary Directories
 ### [Graphs](Graphs)
 Contains multiple graphs created throughout the project
 

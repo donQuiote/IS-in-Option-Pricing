@@ -8,7 +8,8 @@ from Algorithms.adaptive_strategy import adaptive_optimal_r
 #Interest rate
 r = .05
 #stock volatility
-vol = 0.51
+#vol = 0.51
+vol = 0.3
 
 #Option maturity
 T = 0.2
@@ -17,7 +18,8 @@ S0 = 100
 #strike price
 K = 120
 #Subintervals
-M = 100
+M = 1000
+
 #Smapling size
 nbr_Ns = 30
 Ns = np.logspace(1,6,num=nbr_Ns,dtype=int) #np.ndarray
@@ -39,7 +41,7 @@ print(analytical_price)
 N = 10
 stock_prices,_ = generate_stock_path(S_0=S0, nbr_gen=N, time_obs=M, timeline=timeline, delta_t=dt, mu=r, sigma=vol,phi = 0)
 stock_paths = stock_prices.select(pl.exclude("likelihood_ratio")).to_numpy()
-plot_paths(stock_paths=stock_paths, timeline=timeline, N=N, K=K, filename="Graphs/stock_paths")
+plot_paths(stock_paths=stock_paths, timeline=timeline, N=N, K=K, filename="../Graphs/stock_paths", title= f"Generated Stock Price Paths with {100*vol}% volatility")
 
 #%%
 #Generate multiple iterations of various path and compute the price and Confidence intervals
@@ -47,7 +49,7 @@ numerical_prices, confidence_intervals = generate_numerical_prices(iterations=it
 numerical_prices_avg =  numerical_prices.mean()
 numerical_prices_std = numerical_prices.std()
 analytical_price = analytical_call_price(S_0=S0,K=K,T=T,r=r,sigma=vol)
-plot_MC_Analytical(analytical_price=analytical_price, numerical_prices_avg=numerical_prices_avg, numerical_prices_std=numerical_prices_std, sample_sizes=Ns, nbr_iterations = nbr_iterations, confidence_level=0.95, filename ="Graphs/CMC_CO_estimation")
+plot_MC_Analytical(analytical_price=analytical_price, numerical_prices_avg=numerical_prices_avg, numerical_prices_std=numerical_prices_std, sample_sizes=Ns, nbr_iterations = nbr_iterations, confidence_level=0.95, filename ="../Graphs/CMC_CO_estimation")
 latex_table = generate_latex_table(numerical_prices, Ns,mean_txt="Mean numerical price", std_txt="estimator's std dev.")
 print(latex_table)
 latex_table_CI = generate_latex_table(confidence_intervals, Ns, mean_txt="Mean CI size", std_txt="sdt dev. in CI size")
@@ -64,7 +66,7 @@ phi = (r_tilde-r)/vol
 numerical_prices_IS, confidence_intervals_IS = generate_numerical_prices(iterations=iterations,Ns=Ns,S_0=S0, K=K, M=M, T=T, timeline=timeline, dt=dt, r=r, vol=vol, generate=generate_stock_path, phi=phi)
 numerical_prices_avg_IS =  numerical_prices_IS.mean()
 numerical_prices_std_IS = numerical_prices_IS.std()
-plot_MC_Analytical(analytical_price=analytical_price, numerical_prices_avg=numerical_prices_avg_IS, numerical_prices_std=numerical_prices_std_IS, sample_sizes=Ns, nbr_iterations = nbr_iterations, confidence_level=0.95, filename ="Graphs/MC_CO_estimation_IS", title="Monte Carlo call price estimation with IS chosen")
+plot_MC_Analytical(analytical_price=analytical_price, numerical_prices_avg=numerical_prices_avg_IS, numerical_prices_std=numerical_prices_std_IS, sample_sizes=Ns, nbr_iterations = nbr_iterations, confidence_level=0.95, filename ="../Graphs/MC_CO_estimation_IS", title="Monte Carlo call price estimation with IS chosen")
 latex_table_IS = generate_latex_table(numerical_prices_IS, Ns,mean_txt="Mean numerical price", std_txt="estimator's std dev.")
 print(latex_table_IS)
 latex_table_CI_IS = generate_latex_table(confidence_intervals_IS, Ns, mean_txt="Mean CI size", std_txt="sdt dev. in CI size")
@@ -84,7 +86,7 @@ numerical_prices_star, confidence_intervals_star = generate_numerical_prices(ite
 numerical_prices_avg_star =  numerical_prices_star.mean()
 numerical_prices_std_star = numerical_prices_star.std()
 analytical_price = analytical_call_price(S_0=S0,K=K,T=T,r=r,sigma=vol)
-plot_MC_Analytical(analytical_price=analytical_price, numerical_prices_avg=numerical_prices_avg_star, numerical_prices_std=numerical_prices_std_star, sample_sizes=Ns, nbr_iterations = nbr_iterations, confidence_level=0.95, filename="Graphs/MC_CO_Optimal_r_tilde", title="Monte Carlo call price estimation with optimal IS")
+plot_MC_Analytical(analytical_price=analytical_price, numerical_prices_avg=numerical_prices_avg_star, numerical_prices_std=numerical_prices_std_star, sample_sizes=Ns, nbr_iterations = nbr_iterations, confidence_level=0.95, filename="../Graphs/MC_CO_Optimal_r_tilde", title="Monte Carlo call price estimation with optimal IS")
 latex_table_star = generate_latex_table(numerical_prices_star, Ns,mean_txt="Mean numerical price", std_txt="estimator's std dev.")
 print(latex_table_star)
 latex_table_CI_star = generate_latex_table(confidence_intervals_star, Ns, mean_txt="Mean CI size", std_txt="sdt dev. in CI size")

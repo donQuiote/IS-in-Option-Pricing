@@ -1,7 +1,7 @@
 import polars as pl
 import scipy.stats as st
 import numpy as np
-from generation import generate_stock_path
+from Algorithms.generation import generate_stock_path
 from scipy.optimize import minimize
 
 

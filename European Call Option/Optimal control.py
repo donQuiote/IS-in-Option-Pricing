@@ -22,6 +22,10 @@ S0 = 100
 #strike price
 K = 120
 
+"""
+Slight note: The indices for time and space are inverted in the code as opposed as inside the report
+"""
+
 #grid_params = [(50,30),(100,60),(300,180),(500,300)]
 grid_params = [(300,180)]
 
@@ -65,7 +69,7 @@ for grid_param in grid_params:
     idx_S_min = np.argmin(np.abs(s_set - S_min))
     idx_S_max = np.argmin(np.abs(s_set - S_max))
 
-    surface_plotter(s_set[idx_S_min:idx_S_max], t_set[:-1],zeta[idx_S_min:idx_S_max,:-1], title="Zeta Optimal Control Surface", filename="Graphs/S_surface.png")
+    surface_plotter(s_set[idx_S_min:idx_S_max], t_set[:-1],zeta[idx_S_min:idx_S_max,:-1], title="Zeta Optimal Control Surface", filename="../Graphs/S_surface.png")
 
     zeta_interpolator = RegularGridInterpolator((s_set, t_set), zeta, method='linear', bounds_error=False, fill_value=0)
     #%%
@@ -85,7 +89,7 @@ for grid_param in grid_params:
 
     print("The price is:",value)
 
-    plot_paths(stock_paths=stock_price.select(pl.exclude(["likelihood_ratio", "payoff", "payoff_weighted"])).to_numpy(), timeline=t_set, N=N, K=K, filename=f"Graphs/stock_paths_optimal_{N}_{P}s_{M_tilde}t.png", avg_path=True, title="Generated Controlled Stock Price Paths with 51% volatility")
+    plot_paths(stock_paths=stock_price.select(pl.exclude(["likelihood_ratio", "payoff", "payoff_weighted"])).to_numpy(), timeline=t_set, N=N, K=K, filename=f"../Graphs/stock_paths_optimal_{N}_{P}s_{M_tilde}t.png", avg_path=True, title="Generated Controlled Stock Price Paths with 51% volatility")
 
     #Smapling size
     nbr_Ns = 10
@@ -99,6 +103,6 @@ for grid_param in grid_params:
     numerical_prices_avg_opt_control=  numerical_prices_opt_control.mean()
     numerical_prices_std_opt_control = numerical_prices_opt_control.std()
     analytical_price = analytical_call_price(S_0=S0,K=K,T=T,r=r,sigma=vol)
-    plot_MC_Analytical(analytical_price=analytical_price, numerical_prices_avg=numerical_prices_avg_opt_control, numerical_prices_std=numerical_prices_std_opt_control, sample_sizes=Ns, nbr_iterations = nbr_iterations, confidence_level=0.95, filename=f"Graphs/MC_CO_Optimal_Controlled_{P}s_{M_tilde}t", title="Monte Carlo call price estimation with optimal control")
+    plot_MC_Analytical(analytical_price=analytical_price, numerical_prices_avg=numerical_prices_avg_opt_control, numerical_prices_std=numerical_prices_std_opt_control, sample_sizes=Ns, nbr_iterations = nbr_iterations, confidence_level=0.95, filename=f"../Graphs/MC_CO_Optimal_Controlled_{P}s_{M_tilde}t", title="Monte Carlo call price estimation with optimal control")
     print("average price",numerical_prices_avg_opt_control)
     print("average std",numerical_prices_std_opt_control)

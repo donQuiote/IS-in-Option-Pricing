@@ -59,7 +59,7 @@ V_matrix[:,-1] = np.maximum(s_set-K,0)
 
 V_matrix = crank_nicholson_pde_solver(V_matrix, dt, ds, s_set, M_tilde, P, vol, r)
 
-#surface_plotter(s_set, t_set,V_matrix, title="Value Surface", filename="V_surface_UOC.png")
+#surface_plotter(s_set, t_set,V_matrix, title="Value Surface", filename="../Graphs/V_surface_UOC.png")
 
 #%%
 zeta = zeta_control_generator(P,M_tilde, V_matrix, s_set, ds, vol)
@@ -70,7 +70,7 @@ S_max = S0*np.exp((r-(vol**2)/2)*T+3*vol*np.sqrt(T))
 idx_S_min = np.argmin(np.abs(s_set - S_min))
 idx_S_max = np.argmin(np.abs(s_set - S_max))
 
-surface_plotter(s_set[idx_S_min:idx_S_max], t_set[:-1],zeta[idx_S_min:idx_S_max,:-1], title="Zeta Optimal Control Surface", filename="Graphs/S_surface_UOC.png")
+surface_plotter(s_set[idx_S_min:idx_S_max], t_set[:-1],zeta[idx_S_min:idx_S_max,:-1], title="Zeta Optimal Control Surface", filename="../Graphs/S_surface_UOC.png")
 
 
 zeta_interpolator = RegularGridInterpolator((s_set, t_set), zeta, method='linear', bounds_error=False, fill_value=0)
@@ -99,19 +99,19 @@ value = (stock_price.select("payoff_weighted")).mean().item()
 
 print("The price is:",value)
 N =100
-plot_paths(stock_paths=stock_price.select(pl.exclude(["likelihood_ratio", "payoff", "payoff_weighted", "S_max", "condition"])).to_numpy(), timeline=t_set, N=N, K=K, filename=f"Graphs/stock_paths_optimal_{N}_{P}s_{M_tilde}t_UOC.png", avg_path=True, U=U, title="Generated Controlled Stock Price Paths with 30% volatility")
+plot_paths(stock_paths=stock_price.select(pl.exclude(["likelihood_ratio", "payoff", "payoff_weighted", "S_max", "condition"])).to_numpy(), timeline=t_set, N=N, K=K, filename=f"../Graphs/stock_paths_optimal_{N}_{P}s_{M_tilde}t_UOC.png", avg_path=True, U=U, title="Generated Controlled Stock Price Paths with 30% volatility")
 
 #%%
 #Smapling size
-nbr_Ns = 5
+nbr_Ns = 10
 Ns = np.logspace(1,4,num=nbr_Ns,dtype=int) #np.ndarray
 
 # iteration of each process
-nbr_iterations = 7
+nbr_iterations = 12
 iterations = np.arange(0,nbr_iterations) #np.ndarray
 
 numerical_prices_opt_control, confidence_intervals_opt_control = generate_numerical_prices(iterations=iterations,Ns=Ns,S_0=S0, K=K, M=M_tilde, T=T, timeline=t_set, dt=dt, r=r, vol=vol, generate=generate_controled_path, U = U, s_min=s_min, s_max=s_max, zeta_interpolator=zeta_interpolator)
 numerical_prices_avg_opt_control=  numerical_prices_opt_control.mean()
 numerical_prices_std_opt_control = numerical_prices_opt_control.std()
-plot_MC_Analytical(analytical_price=Up_Out_price, numerical_prices_avg=numerical_prices_avg_opt_control, numerical_prices_std=numerical_prices_std_opt_control, sample_sizes=Ns, nbr_iterations = nbr_iterations, confidence_level=0.95, filename="Graphs/MC_UOCO_Optimal_Controlled")
+plot_MC_Analytical(analytical_price=Up_Out_price, numerical_prices_avg=numerical_prices_avg_opt_control, numerical_prices_std=numerical_prices_std_opt_control, sample_sizes=Ns, nbr_iterations = nbr_iterations, confidence_level=0.95, filename="../Graphs/MC_UOCO_Optimal_Controlled")
 

@@ -17,6 +17,7 @@ S0 = 100
 K = 150
 #Up strike price
 U = 200
+#U = 170
 #Subintervals
 M = 1000
 #Smapling size
@@ -31,8 +32,8 @@ iterations = np.arange(0,nbr_iterations)
 dt = T/M
 timeline = np.linspace(0,T,num=M+1,endpoint=True)
 #%%
-Up_Out_price = analytical_Up_Out_call_price(S0, K, U, T, r, vol)
-print(Up_Out_price)
+#Up_Out_price = analytical_Up_Out_call_price(S0, K, U, T, r, vol)
+#print(Up_Out_price)
 #%%
 ##################
 # 1.
